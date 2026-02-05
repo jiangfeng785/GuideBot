@@ -1,0 +1,8 @@
+project/
+├── backend/
+│   ├── app.py          # Flask后端
+│   └── requirements.txt
+└── frontend/
+    ├── index.html      # 纯HTML页面
+    └── js/
+        └── app.js     # 纯JavaScript
