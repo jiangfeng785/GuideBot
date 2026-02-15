@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuideBot - 智能操作指引生成器</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 头部 -->
+        <header>
+            <h1>GuideBot</h1>
+            <p>智能操作指引生成器 - 截图输入，图片指引输出</p>
+        </header>
+        
+        <!-- 主内容区 -->
+        <main>
+            <!-- 输入选择 -->
+            <div id="input-section" class="section">
+                <h2>选择输入方式</h2>
+                <div class="input-tabs">
+                    <button class="tab-btn active" data-tab="screenshot">截图上传</button>
+                    <button class="tab-btn" data-tab="url">网址输入</button>
+                    <button class="tab-btn" data-tab="text">文本描述</button>
+                </div>
+                
+                <!-- 截图上传区域 -->
+                <div id="screenshot-tab" class="tab-content active">
+                    <div class="upload-area" id="upload-area">
+                        <input type="file" id="file-input" accept="image/*" hidden>
+                        <button id="select-file-btn">选择截图文件</button>
+                        <p>或拖拽截图到此处</p>
+                    </div>
+                    <div id="image-preview"></div>
+                </div>
+                
+                <!-- 网址输入区域 -->
+                <div id="url-tab" class="tab-content">
+                    <input type="url" id="url-input" placeholder="请输入网址（如：https://example.com）">
+                </div>
+                
+                <!-- 文本输入区域 -->
+                <div id="text-tab" class="tab-content">
+                    <textarea id="text-input" placeholder="描述你的目标（如：微信怎么发朋友圈）"></textarea>
+                </div>
+                
+                <!-- 提交按钮 -->
+                <button id="submit-btn" class="submit-btn">生成指引</button>
+            </div>
+            
+            <!-- 结果展示 -->
+            <div id="result-section" class="section" style="display: none;">
+                <h2>生成的指引</h2>
+                <div id="loading" style="display: none;">
+                    <p>AI正在分析并生成指引...</p>
+                </div>
+                <div id="steps-container"></div>
+                <button id="back-btn">返回</button>
+            </div>
+        </main>
+    </div>
+    
+    <!-- JavaScript文件 -->
+    <script src="./api.js"></script>
+    <script src="./canvas.js"></script>
+    <script src="./ui.js"></script>
+    <script src="./app.js"></script>
+</body>
+</html>
