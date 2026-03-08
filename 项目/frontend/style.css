@@ -195,6 +195,7 @@ textarea {
     font-family: inherit;
 }
 
+<<<<<<< HEAD
 .note-label {
     display: block;
     margin-top: 18px;
@@ -209,6 +210,8 @@ textarea {
     margin-bottom: 0;
 }
 
+=======
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 .submit-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -320,6 +323,7 @@ textarea {
 
 #loading {
     text-align: center;
+<<<<<<< HEAD
     padding: 40px;
     color: #667eea;
     font-size: 1.2rem;
@@ -328,6 +332,13 @@ textarea {
 
 #loading p {
     animation: pulse 1.5s ease-in-out infinite;
+=======
+    padding: 28px 22px;
+    margin-bottom: 16px;
+    border: 1px solid #dfe6ff;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f7f9ff 0%, #eef3ff 100%);
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 }
 
 @keyframes pulse {
@@ -339,6 +350,44 @@ textarea {
     }
 }
 
+<<<<<<< HEAD
+=======
+.ai-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.ai-loading-orb {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 4px solid rgba(102, 126, 234, 0.2);
+    border-top-color: #667eea;
+    border-right-color: #4f8cff;
+    animation: spin 1s linear infinite, pulse 1.6s ease-in-out infinite;
+}
+
+.ai-loading-title {
+    color: #33456a;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.ai-loading-tip {
+    color: #5f6f90;
+    font-size: 0.92rem;
+    margin: 0;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 #steps-container {
     text-align: left;
 }

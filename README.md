@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # GuideBot - 智能操作指引生成器
 
 GuideBot 是一个基于 AI 的智能操作指引生成系统，能够通过分析用户提供的截图、网址或文本描述，自动生成详细的可视化操作步骤指南。
@@ -538,3 +539,11 @@ docker run -p 5000:5000 --env-file backend/.env guidebot-backend
 ---
 
 **注意**：本项目仅供学习和研究使用。请遵守相关法律法规和 API 使用条款。
+=======
+<<<<<<< HEAD
+# GuideBot
+=======
+"test" 
+"test" 
+>>>>>>> 86ac4b26c5b26d261abe02efb0db82896c1030b3
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd

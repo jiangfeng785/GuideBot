@@ -1,5 +1,11 @@
 ﻿// UI manager
 const UIManager = {
+<<<<<<< HEAD
+=======
+    _loadingTimer: null,
+    _loadingTipTimer: null,
+
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
     showInputSection() {
         document.getElementById('input-section').style.display = 'block'
         document.getElementById('result-section').style.display = 'none'
@@ -11,6 +17,7 @@ const UIManager = {
     },
 
     showLoading() {
+<<<<<<< HEAD
         document.getElementById('loading').style.display = 'block'
     },
 
@@ -21,6 +28,55 @@ const UIManager = {
     prepareForNewResult() {
         const stepsContainer = document.getElementById('steps-container')
         stepsContainer.innerHTML = '<p class="guide-empty">正在基于最新输入生成，请稍候...</p>'
+=======
+        const loading = document.getElementById('loading')
+        if (!loading) return
+
+        loading.innerHTML = `
+            <div class="ai-loading">
+                <div class="ai-loading-orb"></div>
+                <p class="ai-loading-title">AI 正在思考<span id="loading-dots">.</span></p>
+                <p class="ai-loading-tip" id="loading-tip">正在理解你的任务目标...</p>
+            </div>
+        `
+        loading.style.display = 'block'
+
+        const dotsEl = document.getElementById('loading-dots')
+        let dotCount = 1
+        this._loadingTimer = window.setInterval(() => {
+            dotCount = (dotCount % 3) + 1
+            if (dotsEl) dotsEl.textContent = '.'.repeat(dotCount)
+        }, 380)
+
+        const tips = [
+            '正在理解你的任务目标...',
+            '正在规划更清晰的步骤结构...',
+            '正在补充避坑提醒与完成检查...',
+            '正在润色为亲和版表达...',
+        ]
+        const tipEl = document.getElementById('loading-tip')
+        let tipIndex = 0
+        this._loadingTipTimer = window.setInterval(() => {
+            tipIndex = (tipIndex + 1) % tips.length
+            if (tipEl) tipEl.textContent = tips[tipIndex]
+        }, 1600)
+    },
+
+    hideLoading() {
+        if (this._loadingTimer) {
+            clearInterval(this._loadingTimer)
+            this._loadingTimer = null
+        }
+        if (this._loadingTipTimer) {
+            clearInterval(this._loadingTipTimer)
+            this._loadingTipTimer = null
+        }
+        const loading = document.getElementById('loading')
+        if (loading) {
+            loading.style.display = 'none'
+            loading.innerHTML = ''
+        }
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
     },
 
     switchTab(tabName) {
@@ -50,7 +106,11 @@ const UIManager = {
         const fileInput = document.getElementById('file-input')
         fileInput.value = ''
 
+<<<<<<< HEAD
         window.selectedFile = null
+=======
+        window.currentFile = null
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
     },
 
     displayTextGuide(result) {
@@ -189,10 +249,13 @@ const UIManager = {
     resetForm() {
         document.getElementById('url-input').value = ''
         document.getElementById('text-input').value = ''
+<<<<<<< HEAD
         const noteInput = document.getElementById('screenshot-note')
         if (noteInput) {
             noteInput.value = ''
         }
+=======
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
         this.deleteImage()
     },
 }

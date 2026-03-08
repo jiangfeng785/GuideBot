@@ -4,7 +4,10 @@ import base64
 import os
 import uuid
 import logging
+<<<<<<< HEAD
 import re
+=======
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 from typing import Any, Dict, List, Optional, Tuple
 
 from flask import Flask, jsonify, request
@@ -35,8 +38,11 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
 )
 logger = logging.getLogger("guidebot")
+<<<<<<< HEAD
 APP_VERSION = "1.2.0"
 APP_BUILD = "2026-03-09-ai-unified-url-text"
+=======
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 
 _ai_service = None
 
@@ -84,6 +90,7 @@ def _save_base64_image(base64_str: str, filename: str) -> Optional[str]:
         return None
 
 
+<<<<<<< HEAD
 def _detect_image_mime(filepath: str) -> str:
     try:
         with open(filepath, "rb") as f:
@@ -109,6 +116,12 @@ def _build_image_data_url(filepath: str) -> str:
         raw = f.read()
     mime = _detect_image_mime(filepath)
     return f"data:{mime};base64,{base64.b64encode(raw).decode('utf-8')}"
+=======
+def _build_image_data_url(filepath: str) -> str:
+    with open(filepath, "rb") as f:
+        raw = f.read()
+    return f"data:image/png;base64,{base64.b64encode(raw).decode('utf-8')}"
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 
 
 def _default_steps() -> List[Dict[str, Any]]:
@@ -149,8 +162,12 @@ def health_check():
         {
             "status": "healthy",
             "service": "GuideBot Backend",
+<<<<<<< HEAD
             "version": APP_VERSION,
             "build": APP_BUILD,
+=======
+            "version": "1.1.0",
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
             "ai": {
                 "ready": ai_ready,
                 "allow_mock_fallback": ALLOW_MOCK_ON_AI_ERROR,
@@ -176,11 +193,15 @@ def process_image():
     try:
         data = request.get_json(silent=True) or {}
         image_base64 = data.get("image")
+<<<<<<< HEAD
         user_note = (data.get("note") or "").strip()
+=======
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 
         if not image_base64:
             return jsonify({"success": False, "error": "缺少图片 Base64 数据。"}), 400
 
+<<<<<<< HEAD
         ext = "png"
         mime_match = re.match(r"^data:(image/[a-zA-Z0-9.+-]+);base64,", str(image_base64))
         if mime_match:
@@ -190,6 +211,9 @@ def process_image():
             elif mime.startswith("image/"):
                 ext = mime.split("/", 1)[1]
         filename = f"{uuid.uuid4().hex}.{ext}"
+=======
+        filename = f"{uuid.uuid4().hex}.png"
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
         filepath = _save_base64_image(image_base64, filename)
 
         if not filepath:
@@ -220,7 +244,11 @@ def process_image():
                 }
             )
 
+<<<<<<< HEAD
         ai_result = service.analyze_image(filepath, user_note=user_note)
+=======
+        ai_result = service.analyze_image(filepath)
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
         steps = ai_result.get("steps") or []
         title = ai_result.get("title") or "操作引导"
         summary = ai_result.get("summary") or "请按以下步骤依次完成操作。"
@@ -284,7 +312,10 @@ def process_image():
                 "ai_used": ai_used,
                 "source": source,
                 "error": ai_result.get("error"),
+<<<<<<< HEAD
                 "note": user_note,
+=======
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
             }
         )
 
@@ -310,7 +341,11 @@ def process_url():
 
         service, ai_error = _get_ai_service()
         if service is None:
+<<<<<<< HEAD
             logger.error("AI service unavailable for url: %s", ai_error)
+=======
+            logger.error("AI service unavailable in /api/process/url: %s", ai_error)
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
             if not ALLOW_MOCK_ON_AI_ERROR:
                 return jsonify({"success": False, "error": f"AI service unavailable: {ai_error}"}), 503
             return jsonify(
@@ -321,7 +356,11 @@ def process_url():
                     "summary": "AI 服务暂不可用，以下为示例引导步骤。",
                     "estimated_time": "约3分钟",
                     "difficulty": "初级",
+<<<<<<< HEAD
                     "prerequisites": ["确认网址可正常访问。", "准备好账号与必要权限。"],
+=======
+                    "prerequisites": ["确认网址可正常访问。", "等待页面加载完成后再操作。"],
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
                     "common_mistakes": ["页面未加载完成就开始点击，导致操作失败。"],
                     "final_check": ["已进入目标功能页面。"],
                     "url": url,
@@ -401,7 +440,11 @@ def process_text():
 
         service, ai_error = _get_ai_service()
         if service is None:
+<<<<<<< HEAD
             logger.error("AI service unavailable for text: %s", ai_error)
+=======
+            logger.error("AI service unavailable in /api/process/text: %s", ai_error)
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
             if not ALLOW_MOCK_ON_AI_ERROR:
                 return jsonify({"success": False, "error": f"AI service unavailable: {ai_error}"}), 503
             return jsonify(
@@ -560,8 +603,12 @@ def api_info():
         {
             "name": "GuideBot API",
             "description": "Guide generation backend API",
+<<<<<<< HEAD
             "version": APP_VERSION,
             "build": APP_BUILD,
+=======
+            "version": "1.1.0",
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
             "endpoints": {
                 "GET": [
                     "/api/health",

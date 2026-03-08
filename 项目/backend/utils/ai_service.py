@@ -4,12 +4,17 @@ import base64
 import json
 import os
 import re
+<<<<<<< HEAD
+=======
+import time
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 from typing import Any, Dict, List, Optional
 
 import requests
 
 
 def _load_env_if_available() -> None:
+<<<<<<< HEAD
     """Load .env from python-dotenv if available, else parse manually."""
     env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
     try:
@@ -34,6 +39,16 @@ def _load_env_if_available() -> None:
                     os.environ[key] = value
     except Exception:
         return
+=======
+    """Load .env if python-dotenv exists; skip silently otherwise."""
+    try:
+        from dotenv import load_dotenv  # type: ignore
+    except Exception:
+        return
+
+    env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+    load_dotenv(env_path)
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 
 
 class QwenVLService:
@@ -45,6 +60,7 @@ class QwenVLService:
             os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1").rstrip("/")
         )
         self.model = os.getenv("DASHSCOPE_MODEL", "qwen-max")
+<<<<<<< HEAD
         self.vision_model = os.getenv("DASHSCOPE_VISION_MODEL", "qwen-vl-max-latest").strip() or self.model
         self.allow_mock_fallback = self._parse_bool(os.getenv("AI_ALLOW_MOCK_FALLBACK"), True)
         self.reasoning_effort = (os.getenv("AI_REASONING_EFFORT", "high") or "high").strip().lower()
@@ -53,6 +69,15 @@ class QwenVLService:
         self.max_tokens = self._parse_int(os.getenv("AI_MAX_TOKENS"), 1800)
         self.thinking_budget = self._parse_int(os.getenv("AI_THINKING_BUDGET"), 2048)
         self.request_timeout = self._parse_int(os.getenv("AI_REQUEST_TIMEOUT"), 75)
+=======
+        self.allow_mock_fallback = self._parse_bool(os.getenv("AI_ALLOW_MOCK_FALLBACK"), True)
+        self.request_timeout_seconds = self._parse_int(os.getenv("AI_REQUEST_TIMEOUT_SECONDS"), 90)
+        self.request_retries = self._parse_int(os.getenv("AI_REQUEST_RETRIES"), 1)
+        self.retry_backoff_seconds = self._parse_float(os.getenv("AI_REQUEST_RETRY_BACKOFF_SECONDS"), 1.5)
+        self.image_max_tokens = self._parse_int(os.getenv("AI_IMAGE_MAX_TOKENS"), 1800)
+        self.text_max_tokens = self._parse_int(os.getenv("AI_TEXT_MAX_TOKENS"), 1300)
+        self.url_max_tokens = self._parse_int(os.getenv("AI_URL_MAX_TOKENS"), 1300)
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 
     @staticmethod
     def _parse_bool(value: Optional[str], default: bool = True) -> bool:
@@ -61,6 +86,7 @@ class QwenVLService:
         return value.strip().lower() in {"1", "true", "yes", "on"}
 
     @staticmethod
+<<<<<<< HEAD
     def _parse_float(value: Optional[str], default: float) -> float:
         if value is None:
             return default
@@ -70,10 +96,13 @@ class QwenVLService:
             return default
 
     @staticmethod
+=======
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
     def _parse_int(value: Optional[str], default: int) -> int:
         if value is None:
             return default
         try:
+<<<<<<< HEAD
             return int(value.strip())
         except Exception:
             return default
@@ -462,11 +491,28 @@ class QwenVLService:
         if scene_keys:
             return key_hit >= 1 or anchor_hit >= 2
         return anchor_hit >= 2
+=======
+            parsed = int(value.strip())
+            return parsed if parsed >= 0 else default
+        except Exception:
+            return default
+
+    @staticmethod
+    def _parse_float(value: Optional[str], default: float) -> float:
+        if value is None:
+            return default
+        try:
+            parsed = float(value.strip())
+            return parsed if parsed >= 0 else default
+        except Exception:
+            return default
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 
     def encode_image_to_base64(self, image_path: str) -> str:
         with open(image_path, "rb") as f:
             return base64.b64encode(f.read()).decode("utf-8")
 
+<<<<<<< HEAD
     def _detect_image_mime(self, image_path: str) -> str:
         try:
             with open(image_path, "rb") as f:
@@ -487,6 +533,141 @@ class QwenVLService:
         return "image/png"
 
     def analyze_image(self, image_path: str, user_note: str = "") -> Dict[str, Any]:
+=======
+    def _system_prompt(self) -> str:
+        return (
+            "你是资深中文产品导师与信息架构师。"
+            "你的任务是产出可执行、细节充分、表达优雅的中文操作引导。"
+            "文风固定为亲和版：语气友好、解释耐心、对新手友善，但避免啰嗦。"
+            "必须坚持：步骤清晰、动作明确、预期可验证、语言自然。"
+        )
+
+    def _guide_json_schema(self) -> str:
+        return (
+            "{"
+            "\"title\":\"简洁标题\","
+            "\"summary\":\"2-3句总览，说明目标、适用人群与完成收益\","
+            "\"estimated_time\":\"如 约8分钟\","
+            "\"difficulty\":\"初级/中级/高级\","
+            "\"prerequisites\":[\"前置条件1\",\"前置条件2\"],"
+            "\"steps\":["
+            "{"
+            "\"step\":1,"
+            "\"title\":\"步骤小标题\","
+            "\"description\":\"45-90字，写清点击位置/输入内容/操作顺序\","
+            "\"purpose\":\"说明这一步为什么必要\","
+            "\"expected_result\":\"完成后应该看到的具体界面变化\","
+            "\"tip\":\"可选，效率技巧\","
+            "\"warning\":\"可选，风险提醒\","
+            "\"rect\":{\"x\":0,\"y\":0,\"width\":120,\"height\":40},"
+            "\"color\":\"#ff0000\""
+            "}"
+            "],"
+            "\"common_mistakes\":[\"常见错误1\",\"常见错误2\"],"
+            "\"final_check\":[\"完成检查点1\",\"完成检查点2\"]"
+            "}"
+        )
+
+    def _build_guide_prompt(self, source_type: str, source_text: Optional[str] = None) -> str:
+        context = ""
+        if source_type == "image":
+            context = "输入是截图，请结合可见UI元素推断操作流程。"
+        elif source_type == "url":
+            context = f"输入是网址：{source_text or ''}。请给出通用网页操作引导，并明确页面加载、导航定位、提交确认。"
+        elif source_type == "text":
+            context = f"输入是任务描述：{source_text or ''}。请围绕该目标生成完整执行方案。"
+
+        return (
+            f"{context}"
+            "只允许输出 JSON，不得输出任何额外说明、前后缀、Markdown。"
+            f"JSON字段必须严格为：{self._guide_json_schema()}"
+            "质量要求："
+            "1) 全部使用简体中文，避免英文夹杂。"
+            "2) 步骤数量为 4-6 步。"
+            "3) 每步 description 要包含“动作 + 位置/对象 + 判定标准”，且为完整句。"
+            "4) 每步必须提供 purpose 与 expected_result，tip/warning 至少二者其一。"
+            "5) 使用亲和版表达：像在手把手指导同学，语气温和、清楚、有陪伴感。"
+            "6) 文案风格专业但不生硬，避免口号式空话，如“按提示操作即可”。"
+            "7) summary、common_mistakes、final_check 必须具体，不能泛泛而谈。"
+            "8) 若信息不充分，基于常见产品交互做合理假设，并在描述中给出保守操作路径。"
+        )
+
+    def _request_chat_completion(self, messages: List[Dict[str, Any]], max_tokens: int = 1800) -> Dict[str, Any]:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": 0.45,
+            "top_p": 0.9,
+            "max_tokens": max_tokens,
+        }
+        attempts = self.request_retries + 1
+        last_error = "AI 请求失败"
+        for idx in range(attempts):
+            try:
+                response = requests.post(
+                    f"{self.base_url}/chat/completions",
+                    headers=headers,
+                    json=payload,
+                    timeout=self.request_timeout_seconds,
+                )
+                if response.status_code != 200:
+                    last_error = f"AI API error {response.status_code}: {response.text[:300]}"
+                    # 5xx 或 429 才重试；4xx 参数错误不重试
+                    should_retry_status = response.status_code >= 500 or response.status_code == 429
+                    if idx < attempts - 1 and should_retry_status:
+                        time.sleep(self.retry_backoff_seconds * (idx + 1))
+                        continue
+                    return {"success": False, "error": last_error}
+
+                result = response.json()
+                content = self._extract_content(result)
+                if content is None:
+                    return {
+                        "success": False,
+                        "error": "AI 响应缺少必要字段（choices/message/content）",
+                        "raw_response": json.dumps(result, ensure_ascii=False)[:1000],
+                    }
+                return {"success": True, "content": content}
+            except requests.RequestException as exc:
+                last_error = f"AI 请求失败: {exc}"
+                if idx < attempts - 1:
+                    time.sleep(self.retry_backoff_seconds * (idx + 1))
+                    continue
+                return {"success": False, "error": last_error}
+
+        return {"success": False, "error": last_error}
+
+    def _guide_from_content(self, content: Any) -> Dict[str, Any]:
+        guide = self._parse_ai_response(content)
+        steps = guide.get("steps", [])
+        if not steps:
+            return {
+                "success": False,
+                "steps": [],
+                "error": "无法从 AI 响应中解析出有效步骤",
+                "raw_response": str(content)[:1000],
+            }
+        return {
+            "success": True,
+            "steps": steps,
+            "title": guide.get("title"),
+            "summary": guide.get("summary"),
+            "estimated_time": guide.get("estimated_time"),
+            "difficulty": guide.get("difficulty"),
+            "prerequisites": guide.get("prerequisites"),
+            "common_mistakes": guide.get("common_mistakes"),
+            "final_check": guide.get("final_check"),
+            "ai_used": True,
+            "source": "ai",
+            "error": None,
+        }
+
+    def analyze_image(self, image_path: str) -> Dict[str, Any]:
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
         if not os.path.exists(image_path):
             return self._error_or_mock(f"图片文件不存在: {image_path}")
 
@@ -495,6 +676,7 @@ class QwenVLService:
 
         try:
             image_base64 = self.encode_image_to_base64(image_path)
+<<<<<<< HEAD
             image_mime = self._detect_image_mime(image_path)
             scene_info = self._analyze_scene(image_base64, image_mime=image_mime)
             response = self._call_completion(
@@ -574,12 +756,38 @@ class QwenVLService:
                 "source": "ai",
                 "error": None,
             }
+=======
+            prompt = self._build_guide_prompt(source_type="image")
+            req = self._request_chat_completion(
+                messages=[
+                    {"role": "system", "content": self._system_prompt()},
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/png;base64,{image_base64}"},
+                            },
+                            {"type": "text", "text": prompt},
+                        ],
+                    },
+                ],
+                max_tokens=self.image_max_tokens,
+            )
+            if not req.get("success"):
+                return self._error_or_mock(req.get("error", "AI 请求失败"), req.get("raw_response"))
+            parsed = self._guide_from_content(req.get("content"))
+            if not parsed.get("success"):
+                return self._error_or_mock(parsed.get("error", "AI 解析失败"), parsed.get("raw_response"))
+            return parsed
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 
         except requests.RequestException as exc:
             return self._error_or_mock(f"AI 请求失败: {exc}")
         except Exception as exc:
             return self._error_or_mock(f"AI 分析异常: {exc}")
 
+<<<<<<< HEAD
     def analyze_url(self, url: str) -> Dict[str, Any]:
         if not url.strip():
             return self._error_or_mock("缺少网址参数。", force_no_mock=True)
@@ -652,6 +860,57 @@ class QwenVLService:
                 "source": "ai",
                 "error": None,
             }
+=======
+    def analyze_text(self, text: str) -> Dict[str, Any]:
+        text = (text or "").strip()
+        if not text:
+            return self._error_or_mock("文本为空，无法生成引导")
+        if not self.api_key:
+            return self._error_or_mock("未配置 DASHSCOPE_API_KEY")
+
+        try:
+            prompt = self._build_guide_prompt(source_type="text", source_text=text)
+            req = self._request_chat_completion(
+                messages=[
+                    {"role": "system", "content": self._system_prompt()},
+                    {"role": "user", "content": prompt},
+                ],
+                max_tokens=self.text_max_tokens,
+            )
+            if not req.get("success"):
+                return self._error_or_mock(req.get("error", "AI 请求失败"), req.get("raw_response"))
+            parsed = self._guide_from_content(req.get("content"))
+            if not parsed.get("success"):
+                return self._error_or_mock(parsed.get("error", "AI 解析失败"), parsed.get("raw_response"))
+            return parsed
+        except requests.RequestException as exc:
+            return self._error_or_mock(f"AI 请求失败: {exc}")
+        except Exception as exc:
+            return self._error_or_mock(f"AI 分析异常: {exc}")
+
+    def analyze_url(self, url: str) -> Dict[str, Any]:
+        url = (url or "").strip()
+        if not url:
+            return self._error_or_mock("网址为空，无法生成引导")
+        if not self.api_key:
+            return self._error_or_mock("未配置 DASHSCOPE_API_KEY")
+
+        try:
+            prompt = self._build_guide_prompt(source_type="url", source_text=url)
+            req = self._request_chat_completion(
+                messages=[
+                    {"role": "system", "content": self._system_prompt()},
+                    {"role": "user", "content": prompt},
+                ],
+                max_tokens=self.url_max_tokens,
+            )
+            if not req.get("success"):
+                return self._error_or_mock(req.get("error", "AI 请求失败"), req.get("raw_response"))
+            parsed = self._guide_from_content(req.get("content"))
+            if not parsed.get("success"):
+                return self._error_or_mock(parsed.get("error", "AI 解析失败"), parsed.get("raw_response"))
+            return parsed
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
         except requests.RequestException as exc:
             return self._error_or_mock(f"AI 请求失败: {exc}")
         except Exception as exc:
@@ -669,6 +928,7 @@ class QwenVLService:
         return message.get("content")
 
     def _parse_ai_response(self, content: Any) -> Dict[str, Any]:
+<<<<<<< HEAD
         parsed = self._parse_json_loose(content)
         if parsed is None:
             return {}
@@ -678,6 +938,8 @@ class QwenVLService:
         return {}
 
     def _parse_json_loose(self, content: Any) -> Optional[Any]:
+=======
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
         if isinstance(content, list):
             text_parts: List[str] = []
             for part in content:
@@ -686,7 +948,11 @@ class QwenVLService:
             content = "\n".join(text_parts)
 
         if not isinstance(content, str):
+<<<<<<< HEAD
             return None
+=======
+            return {}
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 
         text = content.strip()
 
@@ -696,6 +962,7 @@ class QwenVLService:
 
         candidates = [text]
 
+<<<<<<< HEAD
         for array_match in re.finditer(r"\[[\s\S]*?\]", text):
             candidates.append(array_match.group(0).strip())
             if len(candidates) >= 5:
@@ -705,15 +972,35 @@ class QwenVLService:
             candidates.append(object_match.group(0).strip())
             if len(candidates) >= 8:
                 break
+=======
+        array_match = re.search(r"\[[\s\S]*\]", text)
+        if array_match:
+            candidates.append(array_match.group(0).strip())
+
+        object_match = re.search(r"\{[\s\S]*\}", text)
+        if object_match:
+            candidates.append(object_match.group(0).strip())
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 
         for candidate in candidates:
             try:
                 parsed = json.loads(candidate)
+<<<<<<< HEAD
                 return parsed
             except json.JSONDecodeError:
                 continue
 
         return None
+=======
+            except json.JSONDecodeError:
+                continue
+
+            normalized = self._normalize_guide(parsed)
+            if normalized.get("steps"):
+                return normalized
+
+        return {}
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
 
     def _normalize_guide(self, data: Any) -> Dict[str, Any]:
         title = "操作引导"
@@ -853,6 +1140,7 @@ class QwenVLService:
         if not re.search(r"[\u4e00-\u9fff]", description):
             description = f"请执行该步骤：{description}"
 
+<<<<<<< HEAD
         if len(description) < 28:
             description = f"{description} 完成后先确认页面反馈正常，再继续下一步。"
 
@@ -865,6 +1153,12 @@ class QwenVLService:
         force_no_mock: bool = False,
     ) -> Dict[str, Any]:
         if self.allow_mock_fallback and not force_no_mock:
+=======
+        return description
+
+    def _error_or_mock(self, error: str, raw_response: Optional[str] = None) -> Dict[str, Any]:
+        if self.allow_mock_fallback:
+>>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
             return {
                 "success": True,
                 "steps": self._get_mock_steps(),
