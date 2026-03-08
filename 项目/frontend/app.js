@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
 ﻿document.addEventListener('DOMContentLoaded', () => {
     bindEvents()
 })
@@ -14,6 +17,7 @@ function bindEvents() {
     })
 
     // 文件选择
+<<<<<<< HEAD
 =======
 ﻿// App entry
 
@@ -33,11 +37,16 @@ function bindEvents() {
     })
 
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
     document.getElementById('select-file-btn').addEventListener('click', () => {
         document.getElementById('file-input').click()
     })
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
     document.getElementById('file-input').addEventListener('change', (e) => {
         const file = e.target.files[0]
         if (file) handleFile(file)
@@ -114,6 +123,7 @@ function setSubmitLoading(isLoading) {
     }
     submitBtn.disabled = isLoading
     submitBtn.textContent = isLoading ? '生成中...' : '生成指引'
+<<<<<<< HEAD
 =======
     document.getElementById('file-input').addEventListener('change', handleFileSelect)
 
@@ -248,4 +258,6 @@ function displayResult(result) {
 
     UIManager.displayTextGuide(result)
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
 }

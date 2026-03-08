@@ -5,9 +5,12 @@ import json
 import os
 import re
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import time
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -15,6 +18,9 @@ import requests
 
 def _load_env_if_available() -> None:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
     """Load .env from python-dotenv if available, else parse manually."""
     env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
     try:
@@ -39,6 +45,7 @@ def _load_env_if_available() -> None:
                     os.environ[key] = value
     except Exception:
         return
+<<<<<<< HEAD
 =======
     """Load .env if python-dotenv exists; skip silently otherwise."""
     try:
@@ -49,6 +56,8 @@ def _load_env_if_available() -> None:
     env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
     load_dotenv(env_path)
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
 
 
 class QwenVLService:
@@ -61,6 +70,9 @@ class QwenVLService:
         )
         self.model = os.getenv("DASHSCOPE_MODEL", "qwen-max")
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
         self.vision_model = os.getenv("DASHSCOPE_VISION_MODEL", "qwen-vl-max-latest").strip() or self.model
         self.allow_mock_fallback = self._parse_bool(os.getenv("AI_ALLOW_MOCK_FALLBACK"), True)
         self.reasoning_effort = (os.getenv("AI_REASONING_EFFORT", "high") or "high").strip().lower()
@@ -69,6 +81,7 @@ class QwenVLService:
         self.max_tokens = self._parse_int(os.getenv("AI_MAX_TOKENS"), 1800)
         self.thinking_budget = self._parse_int(os.getenv("AI_THINKING_BUDGET"), 2048)
         self.request_timeout = self._parse_int(os.getenv("AI_REQUEST_TIMEOUT"), 75)
+<<<<<<< HEAD
 =======
         self.allow_mock_fallback = self._parse_bool(os.getenv("AI_ALLOW_MOCK_FALLBACK"), True)
         self.request_timeout_seconds = self._parse_int(os.getenv("AI_REQUEST_TIMEOUT_SECONDS"), 90)
@@ -78,6 +91,8 @@ class QwenVLService:
         self.text_max_tokens = self._parse_int(os.getenv("AI_TEXT_MAX_TOKENS"), 1300)
         self.url_max_tokens = self._parse_int(os.getenv("AI_URL_MAX_TOKENS"), 1300)
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
 
     @staticmethod
     def _parse_bool(value: Optional[str], default: bool = True) -> bool:
@@ -87,6 +102,9 @@ class QwenVLService:
 
     @staticmethod
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
     def _parse_float(value: Optional[str], default: float) -> float:
         if value is None:
             return default
@@ -96,13 +114,19 @@ class QwenVLService:
             return default
 
     @staticmethod
+<<<<<<< HEAD
 =======
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
     def _parse_int(value: Optional[str], default: int) -> int:
         if value is None:
             return default
         try:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
             return int(value.strip())
         except Exception:
             return default
@@ -491,6 +515,7 @@ class QwenVLService:
         if scene_keys:
             return key_hit >= 1 or anchor_hit >= 2
         return anchor_hit >= 2
+<<<<<<< HEAD
 =======
             parsed = int(value.strip())
             return parsed if parsed >= 0 else default
@@ -507,12 +532,17 @@ class QwenVLService:
         except Exception:
             return default
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
 
     def encode_image_to_base64(self, image_path: str) -> str:
         with open(image_path, "rb") as f:
             return base64.b64encode(f.read()).decode("utf-8")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
     def _detect_image_mime(self, image_path: str) -> str:
         try:
             with open(image_path, "rb") as f:
@@ -533,6 +563,7 @@ class QwenVLService:
         return "image/png"
 
     def analyze_image(self, image_path: str, user_note: str = "") -> Dict[str, Any]:
+<<<<<<< HEAD
 =======
     def _system_prompt(self) -> str:
         return (
@@ -668,6 +699,8 @@ class QwenVLService:
 
     def analyze_image(self, image_path: str) -> Dict[str, Any]:
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
         if not os.path.exists(image_path):
             return self._error_or_mock(f"图片文件不存在: {image_path}")
 
@@ -677,6 +710,9 @@ class QwenVLService:
         try:
             image_base64 = self.encode_image_to_base64(image_path)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
             image_mime = self._detect_image_mime(image_path)
             scene_info = self._analyze_scene(image_base64, image_mime=image_mime)
             response = self._call_completion(
@@ -756,6 +792,7 @@ class QwenVLService:
                 "source": "ai",
                 "error": None,
             }
+<<<<<<< HEAD
 =======
             prompt = self._build_guide_prompt(source_type="image")
             req = self._request_chat_completion(
@@ -781,6 +818,8 @@ class QwenVLService:
                 return self._error_or_mock(parsed.get("error", "AI 解析失败"), parsed.get("raw_response"))
             return parsed
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
 
         except requests.RequestException as exc:
             return self._error_or_mock(f"AI 请求失败: {exc}")
@@ -788,6 +827,9 @@ class QwenVLService:
             return self._error_or_mock(f"AI 分析异常: {exc}")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
     def analyze_url(self, url: str) -> Dict[str, Any]:
         if not url.strip():
             return self._error_or_mock("缺少网址参数。", force_no_mock=True)
@@ -860,6 +902,7 @@ class QwenVLService:
                 "source": "ai",
                 "error": None,
             }
+<<<<<<< HEAD
 =======
     def analyze_text(self, text: str) -> Dict[str, Any]:
         text = (text or "").strip()
@@ -911,6 +954,8 @@ class QwenVLService:
                 return self._error_or_mock(parsed.get("error", "AI 解析失败"), parsed.get("raw_response"))
             return parsed
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
         except requests.RequestException as exc:
             return self._error_or_mock(f"AI 请求失败: {exc}")
         except Exception as exc:
@@ -929,6 +974,9 @@ class QwenVLService:
 
     def _parse_ai_response(self, content: Any) -> Dict[str, Any]:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
         parsed = self._parse_json_loose(content)
         if parsed is None:
             return {}
@@ -938,8 +986,11 @@ class QwenVLService:
         return {}
 
     def _parse_json_loose(self, content: Any) -> Optional[Any]:
+<<<<<<< HEAD
 =======
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
         if isinstance(content, list):
             text_parts: List[str] = []
             for part in content:
@@ -949,10 +1000,14 @@ class QwenVLService:
 
         if not isinstance(content, str):
 <<<<<<< HEAD
+<<<<<<< HEAD
             return None
 =======
             return {}
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+            return None
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
 
         text = content.strip()
 
@@ -963,6 +1018,9 @@ class QwenVLService:
         candidates = [text]
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
         for array_match in re.finditer(r"\[[\s\S]*?\]", text):
             candidates.append(array_match.group(0).strip())
             if len(candidates) >= 5:
@@ -972,6 +1030,7 @@ class QwenVLService:
             candidates.append(object_match.group(0).strip())
             if len(candidates) >= 8:
                 break
+<<<<<<< HEAD
 =======
         array_match = re.search(r"\[[\s\S]*\]", text)
         if array_match:
@@ -981,16 +1040,22 @@ class QwenVLService:
         if object_match:
             candidates.append(object_match.group(0).strip())
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
 
         for candidate in candidates:
             try:
                 parsed = json.loads(candidate)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
                 return parsed
             except json.JSONDecodeError:
                 continue
 
         return None
+<<<<<<< HEAD
 =======
             except json.JSONDecodeError:
                 continue
@@ -1001,6 +1066,8 @@ class QwenVLService:
 
         return {}
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
 
     def _normalize_guide(self, data: Any) -> Dict[str, Any]:
         title = "操作引导"
@@ -1141,6 +1208,9 @@ class QwenVLService:
             description = f"请执行该步骤：{description}"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
         if len(description) < 28:
             description = f"{description} 完成后先确认页面反馈正常，再继续下一步。"
 
@@ -1153,12 +1223,15 @@ class QwenVLService:
         force_no_mock: bool = False,
     ) -> Dict[str, Any]:
         if self.allow_mock_fallback and not force_no_mock:
+<<<<<<< HEAD
 =======
         return description
 
     def _error_or_mock(self, error: str, raw_response: Optional[str] = None) -> Dict[str, Any]:
         if self.allow_mock_fallback:
 >>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
+=======
+>>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
             return {
                 "success": True,
                 "steps": self._get_mock_steps(),
