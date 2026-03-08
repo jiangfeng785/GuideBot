@@ -1,11 +1,18 @@
 ﻿// API base config
-const isLocalHost = ['localhost', '127.0.0.1', ''].includes(window.location.hostname)
-const API_BASE = isLocalHost
-    ? 'http://localhost:5000/api'
-    : 'https://your-backend.vercel.app/api'
+const host = window.location.hostname || 'localhost'
+const isPrivateHost =
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === '::1' ||
+    /^192\.168\.\d{1,3}\.\d{1,3}$/.test(host) ||
+    /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host) ||
+    /^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(host)
 
+const API_BASE = isPrivateHost
+    ? `http://${host === '::1' ? 'localhost' : host}:5000/api`
+    : 'https://your-backend.vercel.app/api'
 // Upload image and process
-async function uploadImage(file) {
+async function uploadImage(file, note = '') {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
 
@@ -17,7 +24,7 @@ async function uploadImage(file) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ image: base64Data }),
+                body: JSON.stringify({ image: base64Data, note }),
             })
                 .then(response => {
                     if (!response.ok) {
@@ -73,3 +80,4 @@ async function healthCheck() {
     const response = await fetch(`${API_BASE}/health`)
     return await response.json()
 }
+

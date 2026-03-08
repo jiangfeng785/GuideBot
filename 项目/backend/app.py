@@ -4,6 +4,7 @@ import base64
 import os
 import uuid
 import logging
+import re
 from typing import Any, Dict, List, Optional, Tuple
 
 from flask import Flask, jsonify, request
@@ -34,6 +35,8 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
 )
 logger = logging.getLogger("guidebot")
+APP_VERSION = "1.2.0"
+APP_BUILD = "2026-03-09-ai-unified-url-text"
 
 _ai_service = None
 
@@ -81,10 +84,31 @@ def _save_base64_image(base64_str: str, filename: str) -> Optional[str]:
         return None
 
 
+def _detect_image_mime(filepath: str) -> str:
+    try:
+        with open(filepath, "rb") as f:
+            head = f.read(16)
+    except Exception:
+        return "image/png"
+
+    if head.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if head.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if head.startswith(b"GIF87a") or head.startswith(b"GIF89a"):
+        return "image/gif"
+    if head.startswith(b"RIFF") and head[8:12] == b"WEBP":
+        return "image/webp"
+    if head.startswith(b"BM"):
+        return "image/bmp"
+    return "image/png"
+
+
 def _build_image_data_url(filepath: str) -> str:
     with open(filepath, "rb") as f:
         raw = f.read()
-    return f"data:image/png;base64,{base64.b64encode(raw).decode('utf-8')}"
+    mime = _detect_image_mime(filepath)
+    return f"data:{mime};base64,{base64.b64encode(raw).decode('utf-8')}"
 
 
 def _default_steps() -> List[Dict[str, Any]]:
@@ -125,7 +149,8 @@ def health_check():
         {
             "status": "healthy",
             "service": "GuideBot Backend",
-            "version": "1.1.0",
+            "version": APP_VERSION,
+            "build": APP_BUILD,
             "ai": {
                 "ready": ai_ready,
                 "allow_mock_fallback": ALLOW_MOCK_ON_AI_ERROR,
@@ -151,11 +176,20 @@ def process_image():
     try:
         data = request.get_json(silent=True) or {}
         image_base64 = data.get("image")
+        user_note = (data.get("note") or "").strip()
 
         if not image_base64:
             return jsonify({"success": False, "error": "缺少图片 Base64 数据。"}), 400
 
-        filename = f"{uuid.uuid4().hex}.png"
+        ext = "png"
+        mime_match = re.match(r"^data:(image/[a-zA-Z0-9.+-]+);base64,", str(image_base64))
+        if mime_match:
+            mime = mime_match.group(1).lower()
+            if mime == "image/jpeg":
+                ext = "jpg"
+            elif mime.startswith("image/"):
+                ext = mime.split("/", 1)[1]
+        filename = f"{uuid.uuid4().hex}.{ext}"
         filepath = _save_base64_image(image_base64, filename)
 
         if not filepath:
@@ -186,7 +220,7 @@ def process_image():
                 }
             )
 
-        ai_result = service.analyze_image(filepath)
+        ai_result = service.analyze_image(filepath, user_note=user_note)
         steps = ai_result.get("steps") or []
         title = ai_result.get("title") or "操作引导"
         summary = ai_result.get("summary") or "请按以下步骤依次完成操作。"
@@ -250,6 +284,7 @@ def process_image():
                 "ai_used": ai_used,
                 "source": source,
                 "error": ai_result.get("error"),
+                "note": user_note,
             }
         )
 
@@ -273,40 +308,80 @@ def process_url():
         if not url:
             return jsonify({"success": False, "error": "缺少网址参数。"}), 400
 
-        steps = [
-            {
-                "step": 1,
-                "description": f"先打开网址：{url[:50]}",
-                "rect": {"x": 100, "y": 100, "width": 300, "height": 50},
-                "color": "#ff0000",
-            },
-            {
-                "step": 2,
-                "description": "等待页面元素加载完成，再开始下一步操作。",
-                "rect": {"x": 150, "y": 200, "width": 250, "height": 40},
-                "color": "#00aa00",
-            },
-            {
-                "step": 3,
-                "description": "根据页面导航找到目标功能入口并点击进入。",
-                "rect": {"x": 200, "y": 300, "width": 200, "height": 60},
-                "color": "#0000ff",
-            },
-        ]
+        service, ai_error = _get_ai_service()
+        if service is None:
+            logger.error("AI service unavailable for url: %s", ai_error)
+            if not ALLOW_MOCK_ON_AI_ERROR:
+                return jsonify({"success": False, "error": f"AI service unavailable: {ai_error}"}), 503
+            return jsonify(
+                {
+                    "success": True,
+                    "steps": _default_steps(),
+                    "title": "网址操作引导（回退）",
+                    "summary": "AI 服务暂不可用，以下为示例引导步骤。",
+                    "estimated_time": "约3分钟",
+                    "difficulty": "初级",
+                    "prerequisites": ["确认网址可正常访问。", "准备好账号与必要权限。"],
+                    "common_mistakes": ["页面未加载完成就开始点击，导致操作失败。"],
+                    "final_check": ["已进入目标功能页面。"],
+                    "url": url,
+                    "message": "AI 服务不可用，已返回回退说明。",
+                    "ai_used": False,
+                    "source": "mock",
+                    "error": ai_error,
+                }
+            )
+
+        ai_result = service.analyze_url(url)
+        steps = ai_result.get("steps") or []
+        title = ai_result.get("title") or "网址操作引导"
+        summary = ai_result.get("summary") or "请按以下步骤依次完成操作。"
+        estimated_time = ai_result.get("estimated_time") or "约3分钟"
+        difficulty = ai_result.get("difficulty") or "初级"
+        prerequisites = ai_result.get("prerequisites") or []
+        common_mistakes = ai_result.get("common_mistakes") or []
+        final_check = ai_result.get("final_check") or []
+        ai_used = bool(ai_result.get("ai_used"))
+        source = "ai" if ai_used else "mock"
+
+        if not ai_result.get("success"):
+            logger.error("AI analyze_url failed: %s", ai_result.get("error"))
+            status_code = 502 if not ALLOW_MOCK_ON_AI_ERROR else 200
+            return jsonify(
+                {
+                    "success": ALLOW_MOCK_ON_AI_ERROR,
+                    "steps": steps if ALLOW_MOCK_ON_AI_ERROR else [],
+                    "title": title,
+                    "summary": summary,
+                    "estimated_time": estimated_time,
+                    "difficulty": difficulty,
+                    "prerequisites": prerequisites,
+                    "common_mistakes": common_mistakes,
+                    "final_check": final_check,
+                    "url": url,
+                    "message": "AI 调用失败。" if not ALLOW_MOCK_ON_AI_ERROR else "AI 生成失败，已返回回退说明。",
+                    "ai_used": False,
+                    "source": "mock" if ALLOW_MOCK_ON_AI_ERROR else "error",
+                    "error": ai_result.get("error"),
+                }
+            ), status_code
 
         return jsonify(
             {
                 "success": True,
                 "steps": steps,
-                "title": "网址操作引导",
-                "summary": "以下是根据网址生成的示例步骤。",
-                "estimated_time": "约3分钟",
-                "difficulty": "初级",
-                "prerequisites": ["确认网址可正常访问。", "等待页面加载完成后再操作。"],
-                "common_mistakes": ["页面未加载完成就开始点击，导致操作失败。"],
-                "final_check": ["已进入目标功能页面。"],
+                "title": title,
+                "summary": summary,
+                "estimated_time": estimated_time,
+                "difficulty": difficulty,
+                "prerequisites": prerequisites,
+                "common_mistakes": common_mistakes,
+                "final_check": final_check,
                 "url": url,
-                "message": "网址处理完成（示例数据）。",
+                "message": "网址处理完成。",
+                "ai_used": ai_used,
+                "source": source,
+                "error": ai_result.get("error"),
             }
         )
 
@@ -324,41 +399,83 @@ def process_text():
         if not text:
             return jsonify({"success": False, "error": "缺少文本描述。"}), 400
 
-        steps = [
-            {
-                "step": 1,
-                "description": "打开与你目标任务相关的应用或网页。",
-                "rect": {"x": 100, "y": 100, "width": 100, "height": 50},
-                "color": "#ff6600",
-            },
-            {
-                "step": 2,
-                "description": "定位目标入口按钮，确认页面状态后点击。",
-                "rect": {"x": 200, "y": 200, "width": 100, "height": 30},
-                "color": "#ff6600",
-            },
-            {
-                "step": 3,
-                "description": "根据系统提示完成信息填写并提交操作。",
-                "rect": {"x": 150, "y": 300, "width": 150, "height": 40},
-                "color": "#ff6600",
-            },
-        ]
+        service, ai_error = _get_ai_service()
+        if service is None:
+            logger.error("AI service unavailable for text: %s", ai_error)
+            if not ALLOW_MOCK_ON_AI_ERROR:
+                return jsonify({"success": False, "error": f"AI service unavailable: {ai_error}"}), 503
+            return jsonify(
+                {
+                    "success": True,
+                    "steps": _default_steps(),
+                    "title": "文本任务引导（回退）",
+                    "summary": "AI 服务暂不可用，以下为示例引导步骤。",
+                    "estimated_time": "约3分钟",
+                    "difficulty": "初级",
+                    "prerequisites": ["确认你有相关应用或网页的访问权限。"],
+                    "common_mistakes": ["跳过确认步骤，导致结果不完整。"],
+                    "final_check": ["目标任务已按描述完成。"],
+                    "text": text,
+                    "scenario": "general",
+                    "message": "AI 服务不可用，已返回回退说明。",
+                    "ai_used": False,
+                    "source": "mock",
+                    "error": ai_error,
+                }
+            )
+
+        ai_result = service.analyze_text(text)
+        steps = ai_result.get("steps") or []
+        title = ai_result.get("title") or "文本任务引导"
+        summary = ai_result.get("summary") or "请按以下步骤依次完成操作。"
+        estimated_time = ai_result.get("estimated_time") or "约3分钟"
+        difficulty = ai_result.get("difficulty") or "初级"
+        prerequisites = ai_result.get("prerequisites") or []
+        common_mistakes = ai_result.get("common_mistakes") or []
+        final_check = ai_result.get("final_check") or []
+        ai_used = bool(ai_result.get("ai_used"))
+        source = "ai" if ai_used else "mock"
+
+        if not ai_result.get("success"):
+            logger.error("AI analyze_text failed: %s", ai_result.get("error"))
+            status_code = 502 if not ALLOW_MOCK_ON_AI_ERROR else 200
+            return jsonify(
+                {
+                    "success": ALLOW_MOCK_ON_AI_ERROR,
+                    "steps": steps if ALLOW_MOCK_ON_AI_ERROR else [],
+                    "title": title,
+                    "summary": summary,
+                    "estimated_time": estimated_time,
+                    "difficulty": difficulty,
+                    "prerequisites": prerequisites,
+                    "common_mistakes": common_mistakes,
+                    "final_check": final_check,
+                    "text": text,
+                    "scenario": "general",
+                    "message": "AI 调用失败。" if not ALLOW_MOCK_ON_AI_ERROR else "AI 生成失败，已返回回退说明。",
+                    "ai_used": False,
+                    "source": "mock" if ALLOW_MOCK_ON_AI_ERROR else "error",
+                    "error": ai_result.get("error"),
+                }
+            ), status_code
 
         return jsonify(
             {
                 "success": True,
                 "steps": steps,
-                "title": "文本任务引导",
-                "summary": "以下是根据文本描述生成的示例步骤。",
-                "estimated_time": "约3分钟",
-                "difficulty": "初级",
-                "prerequisites": ["确认你有相关应用或网页的访问权限。"],
-                "common_mistakes": ["跳过确认步骤，导致结果不完整。"],
-                "final_check": ["目标任务已按描述完成。"],
+                "title": title,
+                "summary": summary,
+                "estimated_time": estimated_time,
+                "difficulty": difficulty,
+                "prerequisites": prerequisites,
+                "common_mistakes": common_mistakes,
+                "final_check": final_check,
                 "text": text,
                 "scenario": "general",
-                "message": "文本处理完成（示例数据）。",
+                "message": "文本处理完成。",
+                "ai_used": ai_used,
+                "source": source,
+                "error": ai_result.get("error"),
             }
         )
 
@@ -443,7 +560,8 @@ def api_info():
         {
             "name": "GuideBot API",
             "description": "Guide generation backend API",
-            "version": "1.1.0",
+            "version": APP_VERSION,
+            "build": APP_BUILD,
             "endpoints": {
                 "GET": [
                     "/api/health",

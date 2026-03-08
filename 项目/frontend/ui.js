@@ -18,6 +18,11 @@ const UIManager = {
         document.getElementById('loading').style.display = 'none'
     },
 
+    prepareForNewResult() {
+        const stepsContainer = document.getElementById('steps-container')
+        stepsContainer.innerHTML = '<p class="guide-empty">正在基于最新输入生成，请稍候...</p>'
+    },
+
     switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'))
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'))
@@ -45,7 +50,7 @@ const UIManager = {
         const fileInput = document.getElementById('file-input')
         fileInput.value = ''
 
-        window.currentFile = null
+        window.selectedFile = null
     },
 
     displayTextGuide(result) {
@@ -184,6 +189,10 @@ const UIManager = {
     resetForm() {
         document.getElementById('url-input').value = ''
         document.getElementById('text-input').value = ''
+        const noteInput = document.getElementById('screenshot-note')
+        if (noteInput) {
+            noteInput.value = ''
+        }
         this.deleteImage()
     },
 }
