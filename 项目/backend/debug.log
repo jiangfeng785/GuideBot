@@ -1,17 +1,1 @@
-2026-02-15 22:31:48,184 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://192.168.0.18:5000
-2026-02-15 22:31:48,184 INFO [33mPress CTRL+C to quit[0m
-2026-02-15 22:33:45,065 INFO  ’µΩÕº∆¨¥¶¿Ì«Î«Û
-2026-02-15 22:33:45,065 INFO  ’µΩÕº∆¨ ˝æ›£¨≥§∂»: 1390
-2026-02-15 22:33:45,066 INFO Õº∆¨“—±£¥ÊµΩ uploads\66d46b8e44a146d9b087982e637cb529.png
-2026-02-15 22:33:45,066 INFO ø™ ºµ˜”√AI∑˛ŒÒ∑÷ŒˆÕº∆¨
-2026-02-15 22:33:45,086 DEBUG STREAM b'IHDR' 16 13
-2026-02-15 22:33:45,086 DEBUG STREAM b'IDAT' 41 967
-2026-02-15 22:33:45,089 DEBUG Starting new HTTPS connection (1): dashscope.aliyuncs.com:443
-2026-02-15 22:33:48,687 DEBUG https://dashscope.aliyuncs.com:443 "POST /compatible-mode/v1/chat/completions HTTP/1.1" 200 None
-2026-02-15 22:33:48,690 INFO AI∑÷ŒˆÕÍ≥… - ai_used: True
-2026-02-15 22:33:48,690 INFO …˙≥…≤Ω÷Ë ˝: 4
-2026-02-15 22:33:48,747 INFO “—«Â¿Ì¡Ÿ ±Œƒº˛ uploads\66d46b8e44a146d9b087982e637cb529.png
-2026-02-15 22:33:48,748 INFO 127.0.0.1 - - [15/Feb/2026 22:33:48] "POST /api/process/image HTTP/1.1" 200 -
+2026-02-15 22:31:48,184 INFO 

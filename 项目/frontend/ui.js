@@ -1,14 +1,8 @@
-﻿// UI manager
+﻿﻿// UI manager
 const UIManager = {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
     _loadingTimer: null,
     _loadingTipTimer: null,
 
->>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
-=======
->>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
     showInputSection() {
         document.getElementById('input-section').style.display = 'block'
         document.getElementById('result-section').style.display = 'none'
@@ -19,23 +13,14 @@ const UIManager = {
         document.getElementById('result-section').style.display = 'block'
     },
 
-    showLoading() {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
-        document.getElementById('loading').style.display = 'block'
-    },
-
-    hideLoading() {
-        document.getElementById('loading').style.display = 'none'
-    },
-
     prepareForNewResult() {
         const stepsContainer = document.getElementById('steps-container')
-        stepsContainer.innerHTML = '<p class="guide-empty">正在基于最新输入生成，请稍候...</p>'
-<<<<<<< HEAD
-=======
+        if (stepsContainer) {
+            stepsContainer.innerHTML = ''
+        }
+    },
+
+    showLoading() {
         const loading = document.getElementById('loading')
         if (!loading) return
 
@@ -83,9 +68,6 @@ const UIManager = {
             loading.style.display = 'none'
             loading.innerHTML = ''
         }
->>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
-=======
->>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
     },
 
     switchTab(tabName) {
@@ -115,15 +97,7 @@ const UIManager = {
         const fileInput = document.getElementById('file-input')
         fileInput.value = ''
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        window.selectedFile = null
-=======
         window.currentFile = null
->>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
-=======
-        window.selectedFile = null
->>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
     },
 
     displayTextGuide(result) {
@@ -262,19 +236,10 @@ const UIManager = {
     resetForm() {
         document.getElementById('url-input').value = ''
         document.getElementById('text-input').value = ''
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
         const noteInput = document.getElementById('screenshot-note')
         if (noteInput) {
             noteInput.value = ''
         }
-<<<<<<< HEAD
-=======
->>>>>>> 6587051b175b699b6cc75260a41b0cfc88afc1bd
-=======
->>>>>>> 19b38e4b16ab2fde41dfdc244fe024ad7bb62b76
         this.deleteImage()
     },
 }
